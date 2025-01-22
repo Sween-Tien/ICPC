@@ -1,0 +1,42 @@
+sudo apt update
+sudo apt upgrade
+
+sudo apt install make sudo debootstrap libcgroup-dev lsof \
+			php-cli php-curl php-json php-xml php-zip procps \
+			gcc g++ openjdk-8-jre-headless openjdk-8-jdk ghc \
+			fp-compiler libcurl4-gnutls-dev libjsoncpp-dev \
+			libmagic-dev mono-mcs
+
+
+wget [url] (eg: https//domjudge.org/domjudge-8-1-3.tar.gz)
+tar -zxvf domjudge-8-1-3.tar.gz
+cd domjudge-8.1.3
+
+sudo mkdir /opt/domjudge
+./configure --prefix=/opt/domjudge --with-baseurl=127.0.0.1
+make judgehost && sudo make install-judgehost
+
+sudo useradd -d /nonexistent -U -M -s /bin/false domjudge-run
+
+sudo cp /opt/domjudge/judgehost/etc/sudoers-domjudge /etc/sudoers.d
+
+sudo nano /opt/domjudge/judgehost/etc/restapi.secret
+# add the following to /opt/domjudge/judgehost/etc/restapi.secret
+default http://yourhost/domjudge/api   judgehost       BNc9r5xW36d4widNwfdSAnGfNIagcOCR
+
+sudo sed -i 's,http://us.archive.ubuntu.com/ubuntu/,http://mirrors.aliyun.com/ubuntu,g' /opt/domjudge/judgehost/bin/dj_make_chroot
+sudo /opt/domjudge/judgehost/bin/dj_make_chroot 
+
+
+sudo nano /etc/default/grub
+# add the following to /etc/default/grub
+GRUB_CMDLINE_LINUX_DEFAULT="quiet cgroup_enable=memory swapaccount=1 systemd.unified_cgroup_hierarchy=0"
+
+sudo update-grub
+#reboot your pc
+sudo reboot
+
+sudo bash /opt/domjudge/judgehost/bin/create_cgroups
+
+/opt/domjudge/judgehost/bin/judgedaemo
+
