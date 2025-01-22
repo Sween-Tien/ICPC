@@ -38,7 +38,6 @@
             . " -f Courier11 "
             . " -p $tmp "
             . escapeshellarg($filename) . " 2>&1";
-    echo "Happy 521,Acmers!";
     exec($cmd . " && ps2pdf $tmp $tmp" . ".pdf && rm $tmp && python3 send.py $tmp.pdf", $output, $retval);
     return 0;
 ?>
